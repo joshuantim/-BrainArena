@@ -4,10 +4,16 @@ import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Quiz from './pages/Quiz'
 import Result from './pages/Result'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import Admin from './pages/Admin'
 import Toast from './components/Toast'
+import { useAuth } from './hooks/useAuth'
 import './App.css'
 
 function App() {
+  const { user } = useAuth()
+
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem('quizmaster_darkMode') === 'true'
   })
@@ -15,9 +21,6 @@ function App() {
     return localStorage.getItem('quizmaster_sound') !== 'false'
   })
   const [toasts, setToasts] = useState([])
-  const [playerName, setPlayerName] = useState(() => {
-    return localStorage.getItem('quizmaster_playerName') || ''
-  })
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light')
@@ -27,10 +30,6 @@ function App() {
   useEffect(() => {
     localStorage.setItem('quizmaster_sound', soundEnabled)
   }, [soundEnabled])
-
-  useEffect(() => {
-    if (playerName) localStorage.setItem('quizmaster_playerName', playerName)
-  }, [playerName])
 
   const showToast = (title, message, type = 'info') => {
     const id = Date.now() + Math.random()
@@ -59,33 +58,14 @@ function App() {
       />
 
       <Routes>
-        <Route
-          path="/"
-          element={
-            <Home
-              playerName={playerName}
-              setPlayerName={setPlayerName}
-              showToast={showToast}
-            />
-          }
-        />
-        <Route
-          path="/quiz/:categoryId"
-          element={
-            <Quiz
-              playerName={playerName}
-              showToast={showToast}
-            />
-          }
-        />
-        <Route
-          path="/result"
-          element={
-            <Result
-              showToast={showToast}
-            />
-          }
-        />
+        <Route path="/" element={<Home showToast={showToast} />} />
+        <Route path="/quiz/:categoryId" element={<Quiz showToast={showToast} />} />
+        <Route path="/result" element={<Result showToast={showToast} />} />
+        <Route path="/login" element={<Login showToast={showToast} />} />
+        <Route path="/register" element={<Register showToast={showToast} />} />
+        {user?.role === 'admin' && (
+          <Route path="/admin" element={<Admin showToast={showToast} />} />
+        )}
       </Routes>
 
       {/* Toast notifications */}
